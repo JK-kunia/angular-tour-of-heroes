@@ -68,10 +68,20 @@ export class HeroService {
 
   deleteHero(id: number): Observable<Hero> {
     const url = `${this.heroesUrl}/${id}`;
-
     return this.http.delete<Hero>(url, this.httpOptions).pipe(
       tap((_) => this.log(`deleted hero id=${id}`)),
       catchError(this.handleError<Hero>("deleteHero"))
+    );
+  }
+
+  searchHeroes(term: string): Observable<Hero[]> {
+    if (!term.trim()) {
+      // 検索語がない場合、空のヒーロの配列を返す
+      return of([]);
+    }
+    return this.http.get<Hero[]>(`${this.heroesUrl}/?name=${term}`).pipe(
+      tap((_) => this.log(`found heroes matching "${term}"}`)),
+      catchError(this.handleError<Hero[]>("serchHeroes", []))
     );
   }
 }
